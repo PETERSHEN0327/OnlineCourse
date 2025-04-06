@@ -1,0 +1,67 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.4.4'
+    id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()  // 主仓库，确保能下载依赖
+    maven { url 'https://repo.maven.apache.org/maven2' }  // 备用仓库
+}
+
+dependencies {
+    // Spring Boot 和 JPA 相关依赖
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    // JSP 支持依赖
+    implementation 'org.apache.tomcat.embed:tomcat-embed-jasper'
+    implementation 'jakarta.servlet:jakarta.servlet-api:6.0.0'
+    implementation 'jakarta.servlet.jsp:jakarta.servlet.jsp-api:3.0.0'
+    implementation 'jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api:3.0.0'
+    runtimeOnly 'org.glassfish.web:jakarta.servlet.jsp.jstl:3.0.1'
+
+
+    // 使用 Spring Boot 提供的 Hibernate Validator 和校验支持
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    //implementation 'org.hibernate.validator:hibernate-validator:6.2.0.Final'
+    //implementation 'jakarta.validation:jakarta.validation-api:2.0.2'
+
+    implementation 'jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api:3.0.0'
+    runtimeOnly 'org.glassfish.web:jakarta.servlet.jsp.jstl:3.0.1'
+
+
+
+    // Lombok 依赖（编译时使用）
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    // H2 数据库依赖（只在运行时需要）
+    runtimeOnly 'com.h2database:h2'
+
+    // 测试相关依赖
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testImplementation 'org.springframework.boot:spring-boot-starter-validation'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
