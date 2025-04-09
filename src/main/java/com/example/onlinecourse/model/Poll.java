@@ -1,7 +1,7 @@
 package com.example.onlinecourse.model;
 
 import jakarta.persistence.*;
-
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -13,10 +13,12 @@ public class Poll {
 
     private String question;
 
-    @ElementCollection
-    private List<String> options;
+    // 关联 PollOption
+    @OneToMany(mappedBy = "poll", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    private List<PollOption> options = new ArrayList<>();
 
-    // Getter / Setter
+    // === Getters & Setters ===
+
     public Long getId() {
         return id;
     }
@@ -33,11 +35,11 @@ public class Poll {
         this.question = question;
     }
 
-    public List<String> getOptions() {
+    public List<PollOption> getOptions() {
         return options;
     }
 
-    public void setOptions(List<String> options) {
+    public void setOptions(List<PollOption> options) {
         this.options = options;
     }
 }

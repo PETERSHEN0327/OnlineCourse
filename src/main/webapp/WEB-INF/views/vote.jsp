@@ -11,8 +11,8 @@
 </c:if>
 
 <form action="/poll/${poll.id}" method="post">
-    <c:forEach var="opt" items="${poll.options}">
-        <input type="radio" name="selectedOption" value="${opt}" required /> ${opt}<br/>
+    <c:forEach var="opt" items="${options}">
+        <input type="radio" name="selectedOption" value="${opt.optionText}" required /> ${opt.optionText}<br/>
     </c:forEach>
 
     <br/>

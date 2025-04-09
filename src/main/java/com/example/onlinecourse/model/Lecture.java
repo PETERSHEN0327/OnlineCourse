@@ -1,9 +1,6 @@
 package com.example.onlinecourse.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 @Entity
 public class Lecture {
@@ -13,17 +10,24 @@ public class Lecture {
     private Long id;
 
     private String title;        // Lecture title
+
     private String materialUrl;  // Download link or file path for material
 
-    // Constructors
+    // ✅ 与 Course 建立多对一关系
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "course_id", nullable = false)
+    private Course course;
+
+    // ===== 构造函数 =====
     public Lecture() {}
 
-    public Lecture(String title, String materialUrl) {
+    public Lecture(String title, String materialUrl, Course course) {
         this.title = title;
         this.materialUrl = materialUrl;
+        this.course = course;
     }
 
-    // Getters and Setters
+    // ===== Getter & Setter =====
     public Long getId() {
         return id;
     }
@@ -46,5 +50,13 @@ public class Lecture {
 
     public void setMaterialUrl(String materialUrl) {
         this.materialUrl = materialUrl;
+    }
+
+    public Course getCourse() {
+        return course;
+    }
+
+    public void setCourse(Course course) {
+        this.course = course;
     }
 }

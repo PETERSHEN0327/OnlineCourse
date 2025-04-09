@@ -61,7 +61,8 @@
         </div>
     </c:forEach>
 
-    <a href="/profile" class="back-button">← Back to Profile</a>
+    <!-- ✅ 修改这里的跳转地址 -->
+    <a href="/index" class="back-button">← Back to Home</a>
 </div>
 
 </body>

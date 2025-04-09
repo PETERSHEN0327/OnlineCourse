@@ -12,38 +12,48 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    // Spring Security 配置
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                // ✅ 关闭 CSRF 和 frameOptions 以支持 H2 控制台
+                .csrf(csrf -> csrf.disable())
+                .headers(headers -> headers.disable())
+
+
+                // ✅ 权限控制配置
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/login", "/register", "/css/**", "/webjars/**").permitAll()  // 公开的页面
-                        .requestMatchers("/admin/**").hasAnyRole("TEACHER", "ADMIN")  // 管理员和教师角色
+                        .requestMatchers("/", "/login", "/index", "/register", "/css/**", "/webjars/**", "/h2-console/**", "/WEB-INF/**").permitAll()  // 公开页面
+                        .requestMatchers("/admin/**").hasAnyRole("TEACHER", "ADMIN")  // 管理员和教师权限
                         .requestMatchers("/login", "/WEB-INF/views/login.jsp").permitAll()
-                        .anyRequest().authenticated()  // 其他页面需要认证
+                        .anyRequest().authenticated()  // 其他页面需登录
                 )
+
+                // ✅ 登录配置
                 .formLogin(login -> login
-                        .loginPage("/login")  // 自定义登录页面
-                        .loginProcessingUrl("/dologin")  // 登录表单提交路径
-                        .defaultSuccessUrl("/index", true)  // 登录成功后跳转首页
-                        .failureUrl("/login?error=true")  // 登录失败跳转
-                        .permitAll()  // 允许所有用户访问登录页面
+                        .loginPage("/login")
+                        .loginProcessingUrl("/dologin")
+                        .defaultSuccessUrl("/index", true)
+                        .failureUrl("/login?error=true")
+                        .permitAll()
                 )
+
+                // ✅ 登出配置
                 .logout(logout -> logout
-                        .logoutUrl("/logout")  // 登出路径
-                        .logoutSuccessUrl("/login?logout=true")  // 登出成功跳转登录页面
-                        .permitAll()  // 允许所有用户访问登出
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/login?logout=true")
+                        .permitAll()
                 )
+
+                // ✅ 异常处理
                 .exceptionHandling(exception -> exception
-                        .accessDeniedPage("/access-denied")  // 定义访问被拒绝页面
+                        .accessDeniedPage("/access-denied")
                 );
 
         return http.build();
     }
 
-    // 密码加密器
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();  // 使用 BCrypt 加密密码
+        return new BCryptPasswordEncoder();
     }
 }

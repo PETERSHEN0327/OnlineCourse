@@ -7,12 +7,11 @@ import com.example.onlinecourse.repository.CourseRepository;
 import com.example.onlinecourse.repository.LectureRepository;
 import com.example.onlinecourse.repository.PollRepository;
 
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -28,31 +27,44 @@ public class HomeController {
     @Autowired
     private PollRepository pollRepository;
 
-    // ✅ 处理根路径 /：未登录跳转到登录页，已登录跳转到 index
+    // ✅ 根路径：根据是否登录跳转
     @GetMapping("/")
     public String rootRedirect(Authentication authentication) {
         if (authentication != null && authentication.isAuthenticated()) {
-            return "index";  // 已登录，跳转到 /index
+            return "redirect:/index";  // 已登录跳转 index
         }
-        return "redirect:/login";  // 未登录，跳转到登录页
+        return "redirect:/login";  // 未登录跳转登录页
     }
 
+    // ✅ 索引页：显示所有课程（链接）、所有讲座和所有投票
     @GetMapping("/index")
     public String index(Model model) {
-        // 读取课程信息（仅取第一个课程）
         List<Course> courses = courseRepository.findAll();
-        String courseName = courses.isEmpty() ? "No Course Available" : courses.get(0).getName();
+        List<Lecture> lectures = lectureRepository.findAll(); // 不按课程筛选
+        List<Poll> polls = pollRepository.findAll();          // 全部投票
 
-        // 加载讲座和投票
-        List<Lecture> lectures = lectureRepository.findAll();
-        List<Poll> polls = pollRepository.findAll();
-
-        // 添加数据到 model 中
-        model.addAttribute("courseName", courseName);
+        model.addAttribute("courses", courses);
         model.addAttribute("lectures", lectures);
         model.addAttribute("polls", polls);
+        return "index";
+    }
 
-        // 返回 index.jsp 页面
+    // ✅ 课程详情页：显示某课程的讲座（不显示投票）
+    @GetMapping("/course/{id}")
+    public String courseById(@PathVariable("id") Long courseId, Model model) {
+        Course selected = courseRepository.findById(courseId).orElse(null);
+        List<Course> allCourses = courseRepository.findAll();
+
+        if (selected == null) {
+            model.addAttribute("courseName", "Course Not Found");
+            model.addAttribute("lectures", List.of());
+        } else {
+            model.addAttribute("courseName", selected.getName());
+            model.addAttribute("lectures", lectureRepository.findByCourse(selected));
+        }
+
+        model.addAttribute("courses", allCourses);
+        model.addAttribute("polls", pollRepository.findAll()); // 投票仍然显示（可选）
         return "index";
     }
 }

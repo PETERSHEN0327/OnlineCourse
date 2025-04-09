@@ -13,22 +13,22 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotEmpty(message = "用户名不能为空")
-    @Size(min = 3, max = 50, message = "用户名长度必须在3到50个字符之间")
+    @NotEmpty(message = "Username cannot be empty")
+    @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters")
     private String username;
 
-    @NotEmpty(message = "密码不能为空")
-    @Size(min = 8, message = "密码长度必须至少为8个字符")
+    @NotEmpty(message = "Password cannot be empty")
+    @Size(min = 8, message = "Password must be at least 8 characters")
     private String password;
 
-    @NotEmpty(message = "全名不能为空")
+    @NotEmpty(message = "Full name cannot be empty")
     private String fullName;
 
-    @Email(message = "邮箱格式不正确")
-    @NotEmpty(message = "邮箱不能为空")
+    @Email(message = "Invalid email format")
+    @NotEmpty(message = "Email cannot be empty")
     private String email;
 
-    @NotEmpty(message = "电话不能为空")
+    @NotEmpty(message = "Phone number cannot be empty")
     private String phone;
 
     private String role = "ROLE_USER";  // ✅ 默认角色

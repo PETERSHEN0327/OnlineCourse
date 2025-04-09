@@ -1,5 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <html>
 <head>
     <title>HKMU Login</title>
@@ -51,6 +52,10 @@
         .btn-login { background-color: #007bff; }
         .btn-register { background-color: #28a745; }
         .btn-guest { background-color: #ffc107; color: black; }
+        .message {
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
@@ -58,23 +63,28 @@
 <div class="login-box">
     <h2>Welcome to HKMU Online Courses</h2>
 
-    <!-- 显示登出或注册成功的消息 -->
-    <c:if test="${param.logout != null}">
-        <div style="color: green; margin-bottom: 10px;">You have successfully logged out.</div>
-    </c:if>
+    <!-- ✅ 显示注册成功提示（从 FlashAttribute 获取） -->
     <c:if test="${not empty successMessage}">
-        <div style="color: green; margin-bottom: 10px;">${successMessage}</div>
+        <div class="message" style="color: green;">${successMessage}</div>
     </c:if>
 
-    <!-- 显示登录失败的消息 -->
+    <!-- ✅ Spring Security 默认参数：logout / error -->
+    <c:if test="${param.logout != null}">
+        <div class="message" style="color: green;">You have successfully logged out.</div>
+    </c:if>
     <c:if test="${param.error != null}">
-        <div style="color: red; margin-bottom: 10px;">Invalid username or password.</div>
+        <div class="message" style="color: red;">Invalid username or password.</div>
     </c:if>
 
-    <!-- 登录表单 -->
+    <!-- ✅ 登录表单 -->
     <form action="${pageContext.request.contextPath}/dologin" method="post">
         <input type="text" name="username" placeholder="Username" required />
         <input type="password" name="password" placeholder="Password" required />
+
+        <!-- ✅ 若启用 Spring Security CSRF，这段也能兼容 -->
+        <c:if test="${_csrf != null}">
+            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+        </c:if>
 
         <div class="btn-group">
             <button type="submit" class="btn-login">Login</button>
@@ -86,4 +96,3 @@
 
 </body>
 </html>
-

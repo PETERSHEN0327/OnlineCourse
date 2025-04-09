@@ -20,15 +20,9 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
 
-        h2 {
+        h2, h3 {
             color: #343a40;
             margin-bottom: 20px;
-        }
-
-        h3 {
-            margin-top: 30px;
-            margin-bottom: 10px;
-            color: #495057;
         }
 
         ul {
@@ -70,66 +64,107 @@
         .nav a:hover {
             text-decoration: underline;
         }
+
+        .course-list a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .course-list a:hover {
+            text-decoration: underline;
+        }
+
+        .course-list {
+            margin-bottom: 30px;
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
 
-    <!-- 顶部导航栏 -->
+    <!-- ✅ 顶部导航栏 -->
     <div class="nav">
-        <a href="/profile/comments">📝 My Comments</a>
-        <a href="/profile/votes">🗳️ My Votes</a>
-        <a href="/logout" onclick="return confirm('Log out?')">🚪 Logout</a>
+        <c:choose>
+            <c:when test="${not empty pageContext.request.userPrincipal}">
+                <a href="${pageContext.request.contextPath}/profile/comments">📝 My Comments</a>
+                <a href="${pageContext.request.contextPath}/profile/votes">🗳️ My Votes</a>
+                <a href="${pageContext.request.contextPath}/profile">👤 Personal Information</a>
+                <a href="${pageContext.request.contextPath}/logout" onclick="return confirm('Log out?')">🚪 Logout</a>
+            </c:when>
+            <c:otherwise>
+                <a href="${pageContext.request.contextPath}/login">📝 Login to Comment</a>
+                <a href="${pageContext.request.contextPath}/login">🗳️ Login to Vote</a>
+                <a href="${pageContext.request.contextPath}/register">🧾 Register</a>
+            </c:otherwise>
+        </c:choose>
     </div>
 
-    <!-- 确保用户已登录 -->
-    <c:if test="${empty user}">
-        <script>
-            window.location.href = '/login';  // 如果用户未登录，跳转到登录页面
-        </script>
-    </c:if>
+    <!-- ✅ 可点击课程列表 -->
+    <div class="course-list">
+        <h2>Courses</h2>
+        <ul>
+            <c:forEach var="course" items="${courses}">
+                <li>
+                    <a href="${pageContext.request.contextPath}/course/${course.id}">${course.name}</a>
+                </li>
+            </c:forEach>
+        </ul>
+    </div>
 
-    <h2>Course Name</h2>
-    <p>${courseName}</p>
-
-    <!-- ========== 讲座部分 ========== -->
+    <!-- ✅ Lecture 部分 -->
     <h3>Lecture List
         <c:if test="${pageContext.request.isUserInRole('ROLE_TEACHER')}">
-            <a class="right-btn" href="/admin/lecture/add">➕ Add Lecture</a>
+            <a class="right-btn" href="${pageContext.request.contextPath}/admin/lecture/add">➕ Add Lecture</a>
         </c:if>
     </h3>
 
     <ul>
         <c:forEach var="lecture" items="${lectures}">
             <li>
-                <a href="/lecture/${lecture.id}">${lecture.title}</a>
-
+                <a href="<c:choose>
+                            <c:when test='${not empty pageContext.request.userPrincipal}'>
+                                ${pageContext.request.contextPath}/lecture/${lecture.id}
+                            </c:when>
+                            <c:otherwise>
+                                ${pageContext.request.contextPath}/login
+                            </c:otherwise>
+                        </c:choose>">
+                        ${lecture.title}
+                </a>
                 <c:if test="${pageContext.request.isUserInRole('ROLE_TEACHER')}">
                     <span class="action-links">
-                        <a href="/admin/lecture/${lecture.id}/material">📎 Manage Material</a>
-                        <a href="/admin/lecture/delete/${lecture.id}" onclick="return confirm('Delete this lecture?')">🗑️ Delete</a>
+                        <a href="${pageContext.request.contextPath}/admin/lecture/${lecture.id}/material">📎 Manage Material</a>
+                        <a href="${pageContext.request.contextPath}/admin/lecture/delete/${lecture.id}" onclick="return confirm('Delete this lecture?')">🗑️ Delete</a>
                     </span>
                 </c:if>
             </li>
         </c:forEach>
     </ul>
 
-    <!-- ========== 投票部分 ========== -->
+    <!-- ✅ Poll 部分 -->
     <h3>Poll List
         <c:if test="${pageContext.request.isUserInRole('ROLE_TEACHER')}">
-            <a class="right-btn" href="/admin/poll/add">➕ Add Poll</a>
+            <a class="right-btn" href="${pageContext.request.contextPath}/admin/poll/add">➕ Add Poll</a>
         </c:if>
     </h3>
 
     <ul>
         <c:forEach var="poll" items="${polls}">
             <li>
-                <a href="/poll/${poll.id}">${poll.question}</a>
-
+                <a href="<c:choose>
+                            <c:when test='${not empty pageContext.request.userPrincipal}'>
+                                ${pageContext.request.contextPath}/poll/${poll.id}
+                            </c:when>
+                            <c:otherwise>
+                                ${pageContext.request.contextPath}/login
+                            </c:otherwise>
+                        </c:choose>">
+                        ${poll.question}
+                </a>
                 <c:if test="${pageContext.request.isUserInRole('ROLE_TEACHER')}">
                     <span class="action-links">
-                        <a href="/admin/poll/delete/${poll.id}" onclick="return confirm('Delete this poll?')">🗑️ Delete</a>
+                        <a href="${pageContext.request.contextPath}/admin/poll/delete/${poll.id}" onclick="return confirm('Delete this poll?')">🗑️ Delete</a>
                     </span>
                 </c:if>
             </li>

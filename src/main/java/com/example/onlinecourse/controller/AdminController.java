@@ -4,6 +4,8 @@ import com.example.onlinecourse.model.User;
 import com.example.onlinecourse.model.Lecture;
 import com.example.onlinecourse.model.Comment;
 import com.example.onlinecourse.model.Poll;
+import com.example.onlinecourse.model.PollOption;
+
 import com.example.onlinecourse.repository.UserRepository;
 import com.example.onlinecourse.repository.LectureRepository;
 import com.example.onlinecourse.repository.CommentRepository;
@@ -51,7 +53,6 @@ public class AdminController {
     public String editUser(@PathVariable Long id, Model model) {
         User user = userRepository.findById(id).orElse(null);
         if (user == null) return "redirect:/admin/users";
-
         model.addAttribute("user", user);
         return "admin_user_edit";
     }
@@ -95,17 +96,14 @@ public class AdminController {
         return "redirect:/index";
     }
 
-    // ✅ 上传/替换讲义页面
     @GetMapping("/lecture/{id}/material")
     public String lectureMaterialForm(@PathVariable Long id, Model model) {
         Lecture lecture = lectureRepository.findById(id).orElse(null);
         if (lecture == null) return "redirect:/index";
-
         model.addAttribute("lecture", lecture);
         return "admin_lecture_material";
     }
 
-    // ✅ 提交上传或修改讲义
     @PostMapping("/lecture/{id}/material")
     public String uploadLectureMaterial(@PathVariable Long id,
                                         @RequestParam("file") MultipartFile file) throws IOException {
@@ -125,12 +123,10 @@ public class AdminController {
         return "redirect:/lecture/" + id;
     }
 
-    // ✅ 删除讲义链接
     @GetMapping("/lecture/{id}/material/delete")
     public String deleteLectureMaterial(@PathVariable Long id) {
         Lecture lecture = lectureRepository.findById(id).orElse(null);
         if (lecture == null) return "redirect:/index";
-
         lecture.setMaterialUrl(null);
         lectureRepository.save(lecture);
         return "redirect:/lecture/" + id;
@@ -160,9 +156,19 @@ public class AdminController {
     @PostMapping("/poll/add")
     public String submitPoll(@ModelAttribute Poll poll,
                              @RequestParam("optionList") String optionList) {
-        List<String> options = List.of(optionList.split("\\r?\\n"));
+
+        List<PollOption> options = List.of(optionList.split(",")).stream()
+                .map(text -> {
+                    PollOption option = new PollOption();
+                    option.setOptionText(text.trim());
+                    option.setPoll(poll);
+                    return option;
+                })
+                .toList();
+
         poll.setOptions(options);
         pollRepository.save(poll);
+
         return "redirect:/index";
     }
 

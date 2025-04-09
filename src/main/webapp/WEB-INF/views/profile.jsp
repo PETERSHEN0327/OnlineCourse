@@ -30,9 +30,16 @@
         input[type="password"] {
             width: 95%;
             padding: 10px;
-            margin: 10px 0;
+            margin: 10px 0 2px;
             border: 1px solid #ccc;
             border-radius: 6px;
+        }
+
+        .error-text {
+            font-size: 12px;
+            color: red;
+            margin-bottom: 8px;
+            text-align: left;
         }
 
         .btn-group {
@@ -80,37 +87,57 @@
 <div class="profile-box">
     <h2>User Profile</h2>
 
-    <form action="/profile/update" method="post">
+    <form action="${pageContext.request.contextPath}/profile/update" method="post">
+        <!-- Username (readonly) -->
         <label>Username (readonly):</label><br/>
         <input type="text" name="username" value="${user.username}" readonly />
 
+        <!-- Password -->
         <label>New Password:</label><br/>
         <input type="password" name="password" placeholder="Leave blank to keep current" />
+        <c:if test="${not empty errors.getFieldError('password')}">
+            <div class="error-text">${errors.getFieldError('password').defaultMessage}</div>
+        </c:if>
 
+        <!-- Full Name -->
         <label>Full Name:</label><br/>
         <input type="text" name="fullName" value="${user.fullName}" required />
+        <c:if test="${not empty errors.getFieldError('fullName')}">
+            <div class="error-text">${errors.getFieldError('fullName').defaultMessage}</div>
+        </c:if>
 
+        <!-- Email -->
         <label>Email:</label><br/>
         <input type="email" name="email" value="${user.email}" required />
+        <c:if test="${not empty errors.getFieldError('email')}">
+            <div class="error-text">${errors.getFieldError('email').defaultMessage}</div>
+        </c:if>
 
+        <!-- Phone -->
         <label>Phone:</label><br/>
         <input type="tel" name="phone" value="${user.phone}" required />
+        <c:if test="${not empty errors.getFieldError('phone')}">
+            <div class="error-text">${errors.getFieldError('phone').defaultMessage}</div>
+        </c:if>
 
+        <!-- Buttons -->
         <div class="btn-group">
             <button type="submit" class="btn-save" onclick="return confirm('Save changes?')">Save</button>
             <button type="button" class="btn-cancel" onclick="location.reload()">Cancel</button>
-            <button type="button" class="btn-back" onclick="location.href='/index'">Back</button>
+            <button type="button" class="btn-back" onclick="location.href='${pageContext.request.contextPath}/index'">Back</button>
         </div>
     </form>
 
+    <!-- Optional server-side success message -->
     <c:if test="${not empty message}">
         <div class="message">${message}</div>
     </c:if>
 
+    <!-- Quick links -->
     <div class="links">
-        <a href="/profile/comments">My Comments</a>
+        <a href="${pageContext.request.contextPath}/profile/comments">📝 My Comments</a>
         |
-        <a href="/profile/votes">My Votes</a>
+        <a href="${pageContext.request.contextPath}/profile/votes">🗳️ My Votes</a>
     </div>
 </div>
 
