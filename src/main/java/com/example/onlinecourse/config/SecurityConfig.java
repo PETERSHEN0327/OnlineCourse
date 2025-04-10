@@ -22,6 +22,7 @@ public class SecurityConfig {
 
                 // ✅ 权限控制配置
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/uploads/**").permitAll()  // ✅ 放行静态上传文件
                         .requestMatchers("/", "/login", "/index", "/register", "/css/**", "/webjars/**", "/h2-console/**", "/WEB-INF/**").permitAll()  // 公开页面
                         .requestMatchers("/admin/**").hasAnyRole("TEACHER", "ADMIN")  // 管理员和教师权限
                         .requestMatchers("/login", "/WEB-INF/views/login.jsp").permitAll()
