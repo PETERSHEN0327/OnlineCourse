@@ -1,15 +1,7 @@
 package com.example.onlinecourse.controller;
 
-import com.example.onlinecourse.model.User;
-import com.example.onlinecourse.model.Lecture;
-import com.example.onlinecourse.model.Comment;
-import com.example.onlinecourse.model.Poll;
-import com.example.onlinecourse.model.PollOption;
-
-import com.example.onlinecourse.repository.UserRepository;
-import com.example.onlinecourse.repository.LectureRepository;
-import com.example.onlinecourse.repository.CommentRepository;
-import com.example.onlinecourse.repository.PollRepository;
+import com.example.onlinecourse.model.*;
+import com.example.onlinecourse.repository.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,22 +18,16 @@ import java.util.List;
 @RequestMapping("/admin")
 public class AdminController {
 
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private LectureRepository lectureRepository;
-
-    @Autowired
-    private CommentRepository commentRepository;
-
-    @Autowired
-    private PollRepository pollRepository;
+    @Autowired private UserRepository userRepository;
+    @Autowired private CourseRepository courseRepository;
+    @Autowired private LectureRepository lectureRepository;
+    @Autowired private CommentRepository commentRepository;
+    @Autowired private PollRepository pollRepository;
 
     @Value("${file.upload-dir}")
     private String uploadDir;
 
-    // ===================== 用户管理 =====================
+    // ===== 用户管理 =====
 
     @GetMapping("/users")
     public String userList(Model model) {
@@ -76,25 +62,7 @@ public class AdminController {
         return "redirect:/admin/users";
     }
 
-    // ===================== 讲座管理 =====================
-
-    @GetMapping("/lecture/add")
-    public String addLectureForm(Model model) {
-        model.addAttribute("lecture", new Lecture());
-        return "admin_lecture_add";
-    }
-
-    @PostMapping("/lecture/add")
-    public String addLectureSubmit(@ModelAttribute Lecture lecture) {
-        lectureRepository.save(lecture);
-        return "redirect:/index";
-    }
-
-    @GetMapping("/lecture/delete/{id}")
-    public String deleteLecture(@PathVariable Long id) {
-        lectureRepository.deleteById(id);
-        return "redirect:/index";
-    }
+    // ===== 讲义管理 =====
 
     @GetMapping("/lecture/{id}/material")
     public String lectureMaterialForm(@PathVariable Long id, Model model) {
@@ -120,32 +88,63 @@ public class AdminController {
             lectureRepository.save(lecture);
         }
 
-        return "redirect:/lecture/" + id;
+        return "redirect:/course/" + lecture.getCourse().getId();
     }
 
     @GetMapping("/lecture/{id}/material/delete")
     public String deleteLectureMaterial(@PathVariable Long id) {
         Lecture lecture = lectureRepository.findById(id).orElse(null);
         if (lecture == null) return "redirect:/index";
+        Long courseId = lecture.getCourse().getId();
         lecture.setMaterialUrl(null);
         lectureRepository.save(lecture);
-        return "redirect:/lecture/" + id;
+        return "redirect:/course/" + courseId;
     }
 
-    // ===================== 评论管理 =====================
+    @GetMapping("/lecture/add")
+    public String addLectureForm(@RequestParam(value = "courseId", required = false) Long courseId, Model model) {
+        model.addAttribute("courses", courseRepository.findAll());
+        model.addAttribute("selectedCourseId", courseId);
+        return "admin_lecture_add";
+    }
+
+    @PostMapping("/lecture/add")
+    public String addLectureSubmit(@RequestParam("title") String title,
+                                   @RequestParam(value = "materialUrl", required = false) String materialUrl,
+                                   @RequestParam("course.id") Long courseId) {
+        Course course = courseRepository.findById(courseId).orElse(null);
+        if (course == null) return "redirect:/index";
+
+        Lecture lecture = new Lecture();
+        lecture.setId(null); // ✅ 强制清空 ID，防止主键冲突
+        lecture.setTitle(title);
+        lecture.setMaterialUrl(materialUrl);
+        lecture.setCourse(course);
+
+        lectureRepository.save(lecture);
+        return "redirect:/course/" + course.getId();
+    }
+
+    @GetMapping("/lecture/delete/{id}")
+    public String deleteLecture(@PathVariable Long id, @RequestParam("courseId") Long courseId) {
+        lectureRepository.deleteById(id);
+        return "redirect:/course/" + courseId;
+    }
+
+    // ===== 评论删除 =====
 
     @GetMapping("/comment/delete/{id}")
     public String deleteComment(@PathVariable Long id) {
         Comment comment = commentRepository.findById(id).orElse(null);
-        if (comment != null) {
-            Long lectureId = comment.getLecture().getId();
+        if (comment != null && comment.getCourse() != null) {
+            Long courseId = comment.getCourse().getId();
             commentRepository.delete(comment);
-            return "redirect:/lecture/" + lectureId;
+            return "redirect:/course/" + courseId;
         }
         return "redirect:/index";
     }
 
-    // ===================== 投票管理 =====================
+    // ===== 投票管理 =====
 
     @GetMapping("/poll/add")
     public String addPollForm(Model model) {
@@ -156,25 +155,26 @@ public class AdminController {
     @PostMapping("/poll/add")
     public String submitPoll(@ModelAttribute Poll poll,
                              @RequestParam("optionList") String optionList) {
-
         List<PollOption> options = List.of(optionList.split(",")).stream()
                 .map(text -> {
                     PollOption option = new PollOption();
                     option.setOptionText(text.trim());
                     option.setPoll(poll);
                     return option;
-                })
-                .toList();
+                }).toList();
 
         poll.setOptions(options);
         pollRepository.save(poll);
-
         return "redirect:/index";
     }
 
     @GetMapping("/poll/delete/{id}")
     public String deletePoll(@PathVariable Long id) {
-        pollRepository.deleteById(id);
+        Poll poll = pollRepository.findById(id).orElse(null);
+        if (poll != null) {
+            poll.getOptions().clear(); // ✅ 删除选项避免外键约束
+            pollRepository.delete(poll);
+        }
         return "redirect:/index";
     }
 }

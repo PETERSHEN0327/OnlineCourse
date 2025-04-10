@@ -42,9 +42,9 @@ CREATE TABLE poll (
     question VARCHAR(500)
 );
 
-CREATE TABLE poll_options (
+CREATE TABLE poll_option (
     poll_id BIGINT,
-    options VARCHAR(255),
+    option_text VARCHAR(255),
     CONSTRAINT fk_poll_option FOREIGN KEY (poll_id) REFERENCES poll(id)
 );
 

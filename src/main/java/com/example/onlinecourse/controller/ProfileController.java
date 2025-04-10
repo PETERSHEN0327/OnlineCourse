@@ -1,7 +1,11 @@
 package com.example.onlinecourse.controller;
 
+import com.example.onlinecourse.model.Comment;
 import com.example.onlinecourse.model.User;
+import com.example.onlinecourse.model.Vote;
+import com.example.onlinecourse.repository.CommentRepository;
 import com.example.onlinecourse.repository.UserRepository;
+import com.example.onlinecourse.repository.VoteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -10,11 +14,19 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Controller
 public class ProfileController {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private CommentRepository commentRepository;
+
+    @Autowired
+    private VoteRepository voteRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -55,8 +67,9 @@ public class ProfileController {
     public String viewComments(Model model) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String username = auth.getName();
-        model.addAttribute("comments", null); // TODO: 加入真实评论数据
-        return "profile_comments"; // profile_comments.jsp
+        List<Comment> comments = commentRepository.findByUsernameOrderByTimestampDesc(username);
+        model.addAttribute("comments", comments);
+        return "profile_comments";
     }
 
     // ✅ 用户投票历史页面
@@ -64,7 +77,8 @@ public class ProfileController {
     public String viewVotes(Model model) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String username = auth.getName();
-        model.addAttribute("votes", null); // TODO: 加入真实投票数据
-        return "profile_votes"; // profile_votes.jsp
+        List<Vote> votes = voteRepository.findByUsername(username);
+        model.addAttribute("votes", votes);
+        return "profile_votes";
     }
 }

@@ -6,15 +6,16 @@ import jakarta.persistence.*;
 public class Lecture {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // ✅ 确保 ID 自动生成，避免手动冲突
     private Long id;
 
-    private String title;        // Lecture title
+    @Column(nullable = false)
+    private String title; // Lecture title
 
-    private String materialUrl;  // Download link or file path for material
+    private String materialUrl; // Material path (optional)
 
-    // ✅ 与 Course 建立多对一关系
-    @ManyToOne(fetch = FetchType.LAZY)
+    // ✅ 与 Course 建立多对一关系，不能为空
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "course_id", nullable = false)
     private Course course;
 

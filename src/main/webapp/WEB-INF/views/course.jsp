@@ -5,47 +5,56 @@
 
 <html>
 <head>
-    <title>Vote</title>
+    <title>Course Details</title>
     <style>
         body { font-family: Arial, sans-serif; padding: 20px; }
         .comment-block { margin-top: 20px; border-top: 1px solid #ccc; padding-top: 20px; }
         .comment-form { margin-top: 20px; }
         .message { color: green; }
         .error { color: red; }
+        button { margin-top: 10px; }
+        .right-btn { float: right; margin-bottom: 10px; }
+        .action-links { margin-left: 10px; }
     </style>
 </head>
 <body>
 
-<h2>${poll.question}</h2>
+<h2>${course.name}</h2>
 
-<!-- ✅ 投票错误提示 -->
-<c:if test="${not empty error}">
-    <p class="error">${error}</p>
-</c:if>
-
-<!-- ✅ 投票成功提示 -->
 <c:if test="${not empty success}">
     <p class="message">${success}</p>
 </c:if>
 
-<!-- ✅ 投票表单 -->
-<form action="/poll/${poll.id}" method="post">
-    <c:forEach var="opt" items="${options}">
-        <input type="radio" name="selectedOptionId" value="${opt.id}" required />
-        ${opt.optionText} - ${voteCounts[opt.optionText]} votes <br/>
-    </c:forEach>
+<!-- ✅ Lecture 列表 -->
+<h3>Lecture List
+    <c:if test="${pageContext.request.isUserInRole('ROLE_TEACHER')}">
+        <a class="right-btn" href="${pageContext.request.contextPath}/admin/lecture/add?courseId=${course.id}">➕ Add Lecture</a>
+    </c:if>
+</h3>
 
-    <br/>
-    <button type="submit">Submit Vote</button>
-    <button type="button" onclick="location.href='/index'">Back</button>
-</form>
+<ul>
+    <c:forEach var="lecture" items="${lectures}">
+        <li>
+                ${lecture.title}
+            <c:if test="${not empty lecture.materialUrl}">
+                - <a href="${lecture.materialUrl}" target="_blank">📄 Download</a>
+            </c:if>
+
+            <c:if test="${pageContext.request.isUserInRole('ROLE_TEACHER')}">
+                <span class="action-links">
+                    <a href="${pageContext.request.contextPath}/admin/lecture/${lecture.id}/material">📎 Manage</a>
+                    <a href="${pageContext.request.contextPath}/admin/lecture/delete/${lecture.id}?courseId=${course.id}" onclick="return confirm('Delete this lecture?')">🗑️ Delete</a>
+                </span>
+            </c:if>
+        </li>
+    </c:forEach>
+</ul>
 
 <hr/>
 
-<!-- ✅ 评论部分 -->
+<!-- ✅ 评论区域 -->
 <h3>Comments (${totalComments})</h3>
 
-<!-- ✅ 分页控制 -->
 <c:if test="${totalPages > 1}">
     <div>
         <c:forEach var="i" begin="0" end="${totalPages - 1}">
@@ -54,48 +63,47 @@
                     <strong>[${i + 1}]</strong>
                 </c:when>
                 <c:otherwise>
-                    <a href="/poll/${poll.id}?page=${i}">[${i + 1}]</a>
+                    <a href="/course/${course.id}?page=${i}">[${i + 1}]</a>
                 </c:otherwise>
             </c:choose>
         </c:forEach>
     </div>
 </c:if>
 
-<!-- ✅ 评论列表 -->
 <c:forEach var="comment" items="${comments}">
     <div class="comment-block">
-        <strong>${comment.username}</strong>
-        <br/>
+        <strong>${comment.username}</strong><br/>
             ${comment.timestamp.toLocalDate()} ${comment.timestamp.toLocalTime().toString().substring(0,5)}
         <p>${comment.content}</p>
 
-        <!-- ✅ 当前用户是评论作者 -->
         <c:if test="${comment.username == pageContext.request.userPrincipal.name}">
-            <form action="/poll/${poll.id}/comment/${comment.id}/edit" method="get" style="display:inline;">
+            <form action="/course/${course.id}/comment/${comment.id}/edit" method="get" style="display:inline;">
                 <button type="submit">Edit</button>
             </form>
-            <form action="/poll/${poll.id}/comment/${comment.id}/delete" method="post" style="display:inline;">
+            <form action="/course/${course.id}/comment/${comment.id}/delete" method="post" style="display:inline;">
                 <button type="submit">Delete</button>
             </form>
         </c:if>
 
-        <!-- ✅ 当前用户是教师（管理员） -->
         <c:if test="${pageContext.request.isUserInRole('ROLE_TEACHER')}">
-            <form action="/poll/${poll.id}/comment/${comment.id}/delete" method="post" style="display:inline;">
+            <form action="/course/${course.id}/comment/${comment.id}/delete" method="post" style="display:inline;">
                 <button type="submit">Delete (Admin)</button>
             </form>
         </c:if>
     </div>
 </c:forEach>
 
-<!-- ✅ 新增评论 -->
+<!-- ✅ 评论提交表单 -->
 <div class="comment-form">
     <h4>Leave a Comment</h4>
-    <form action="/poll/${poll.id}/comment" method="post">
+    <form action="/course/${course.id}/comment" method="post">
         <textarea name="content" rows="4" cols="50" required></textarea><br/>
         <button type="submit">Post Comment</button>
     </form>
 </div>
+
+<br/>
+<a href="/index"><button type="button">← Back to Index</button></a>
 
 </body>
 </html>

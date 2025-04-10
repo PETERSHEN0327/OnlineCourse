@@ -1,7 +1,6 @@
 package com.example.onlinecourse.model;
 
 import jakarta.persistence.*;
-
 import java.time.LocalDateTime;
 
 @Entity
@@ -17,11 +16,18 @@ public class Comment {
 
     private LocalDateTime timestamp;
 
+    // ✅ 课程评论（可空）
     @ManyToOne
-    @JoinColumn(name = "lecture_id")
-    private Lecture lecture;
+    @JoinColumn(name = "course_id")
+    private Course course;
 
-    // Getter 和 Setter
+    // ✅ 投票评论（可空）
+    @ManyToOne
+    @JoinColumn(name = "poll_id")
+    private Poll poll;
+
+    // ===== Getter & Setter =====
+
     public Long getId() {
         return id;
     }
@@ -54,11 +60,19 @@ public class Comment {
         this.timestamp = timestamp;
     }
 
-    public Lecture getLecture() {
-        return lecture;
+    public Course getCourse() {
+        return course;
     }
 
-    public void setLecture(Lecture lecture) {
-        this.lecture = lecture;
+    public void setCourse(Course course) {
+        this.course = course;
+    }
+
+    public Poll getPoll() {
+        return poll;
+    }
+
+    public void setPoll(Poll poll) {
+        this.poll = poll;
     }
 }

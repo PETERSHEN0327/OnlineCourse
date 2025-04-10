@@ -13,18 +13,14 @@ public class Poll {
 
     private String question;
 
-    // 关联 PollOption
-    @OneToMany(mappedBy = "poll", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    // ✅ 使用 EAGER 避免懒加载错误
+    @OneToMany(mappedBy = "poll", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     private List<PollOption> options = new ArrayList<>();
 
     // === Getters & Setters ===
 
     public Long getId() {
         return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getQuestion() {

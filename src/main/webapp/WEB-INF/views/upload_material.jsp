@@ -11,7 +11,7 @@
     <br/><br/>
     <button type="submit">Save</button>
     <button type="reset">Cancel</button>
-    <button type="button" onclick="location.href='/lecture/${lecture.id}'">Back</button>
+    <button type="button" onclick="location.href='/course/${lecture.course.id}'">Back</button>
 </form>
 
 </body>

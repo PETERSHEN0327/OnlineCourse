@@ -112,7 +112,7 @@
         </ul>
     </div>
 
-    <!-- ✅ Lecture 部分 -->
+    <!-- ✅ Lecture 部分（已去除链接，只显示文字） -->
     <h3>Lecture List
         <c:if test="${pageContext.request.isUserInRole('ROLE_TEACHER')}">
             <a class="right-btn" href="${pageContext.request.contextPath}/admin/lecture/add">➕ Add Lecture</a>
@@ -122,16 +122,7 @@
     <ul>
         <c:forEach var="lecture" items="${lectures}">
             <li>
-                <a href="<c:choose>
-                            <c:when test='${not empty pageContext.request.userPrincipal}'>
-                                ${pageContext.request.contextPath}/lecture/${lecture.id}
-                            </c:when>
-                            <c:otherwise>
-                                ${pageContext.request.contextPath}/login
-                            </c:otherwise>
-                        </c:choose>">
-                        ${lecture.title}
-                </a>
+                    ${lecture.title}
                 <c:if test="${pageContext.request.isUserInRole('ROLE_TEACHER')}">
                     <span class="action-links">
                         <a href="${pageContext.request.contextPath}/admin/lecture/${lecture.id}/material">📎 Manage Material</a>

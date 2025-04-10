@@ -49,22 +49,22 @@ public class HomeController {
         return "index";
     }
 
-    // ✅ 课程详情页：显示某课程的讲座（不显示投票）
-    @GetMapping("/course/{id}")
-    public String courseById(@PathVariable("id") Long courseId, Model model) {
-        Course selected = courseRepository.findById(courseId).orElse(null);
-        List<Course> allCourses = courseRepository.findAll();
-
-        if (selected == null) {
-            model.addAttribute("courseName", "Course Not Found");
-            model.addAttribute("lectures", List.of());
-        } else {
-            model.addAttribute("courseName", selected.getName());
-            model.addAttribute("lectures", lectureRepository.findByCourse(selected));
-        }
-
-        model.addAttribute("courses", allCourses);
-        model.addAttribute("polls", pollRepository.findAll()); // 投票仍然显示（可选）
-        return "index";
-    }
+//    // ✅ 课程详情页：显示某课程的讲座（不显示投票）
+//    @GetMapping("/course/{id}")
+//    public String courseById(@PathVariable("id") Long courseId, Model model) {
+//        Course selected = courseRepository.findById(courseId).orElse(null);
+//        List<Course> allCourses = courseRepository.findAll();
+//
+//        if (selected == null) {
+//            model.addAttribute("courseName", "Course Not Found");
+//            model.addAttribute("lectures", List.of());
+//        } else {
+//            model.addAttribute("courseName", selected.getName());
+//            model.addAttribute("lectures", lectureRepository.findByCourse(selected));
+//        }
+//
+//        model.addAttribute("courses", allCourses);
+//        model.addAttribute("polls", pollRepository.findAll()); // 投票仍然显示（可选）
+//        return "index";
+//    }
 }

@@ -42,6 +42,11 @@
             text-decoration: none;
             border-radius: 6px;
         }
+
+        .source-label {
+            font-weight: bold;
+            color: #333;
+        }
     </style>
 </head>
 <body>
@@ -55,13 +60,22 @@
 
     <c:forEach var="comment" items="${comments}">
         <div class="comment-box">
-            <strong>Lecture:</strong> ${comment.lecture.title}<br/>
-            <strong>Time:</strong> ${comment.timestamp}<br/>
-            <strong>Content:</strong> ${comment.content}
+            <c:if test="${not empty comment.course}">
+                <span class="source-label">From Course:</span>
+                <a href="/course/${comment.course.id}">${comment.course.name}</a><br/>
+            </c:if>
+            <c:if test="${not empty comment.poll}">
+                <span class="source-label">From Poll:</span>
+                <a href="/poll/${comment.poll.id}">${comment.poll.question}</a><br/>
+            </c:if>
+            <strong>Time:</strong>
+                ${comment.timestamp.toLocalDate()} ${comment.timestamp.toLocalTime().toString().substring(0,5)}<br/>
+            <strong>Content:</strong>
+                ${comment.content}
         </div>
     </c:forEach>
 
-    <!-- ✅ 修改这里的跳转地址 -->
+    <!-- ✅ 返回首页按钮 -->
     <a href="/index" class="back-button">← Back to Home</a>
 </div>
 
